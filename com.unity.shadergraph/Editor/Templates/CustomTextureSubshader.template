@@ -1,20 +1,35 @@
-Pass
+SubShader
 {
-    Lighting Off
-    Blend One Zero
-
-	CGPROGRAM
-	#include "UnityCustomRenderTexture.cginc"
-	#pragma vertex CustomRenderTextureVertexShader
-	#pragma fragment frag
-	#pragma target 3.0
-
-	${ShaderPropertyUsages}
-	${ShaderFunctions}
-
-	float4 frag(v2f_customrendertexture IN) : COLOR
+	Pass
 	{
-		${PixelShaderBody}
+		Lighting Off
+		Blend One Zero
+
+		CGPROGRAM
+		#include "UnityCustomRenderTexture.cginc"
+		#pragma vertex CustomRenderTextureVertexShader
+		#pragma fragment frag
+		#pragma target 3.0
+
+		float4 SRGBToLinear( float4 c ) { return c; }
+		float3 SRGBToLinear( float3 c ) { return c; }
+
+		// ${ShaderPropertyUsages}
+
+    	${Graph}
+
+		// ${ShaderFunctions}
+
+		float4 frag(v2f_customrendertexture IN) : COLOR
+		{
+			SurfaceInputs surfaceInput;
+        	
+			${SurfaceInputs}
+
+			SurfaceDescription surf = PopulateSurfaceData(surfaceInput);
+
+			return surf.Color;
+		}
+		ENDCG
 	}
-	ENDCG
 }
