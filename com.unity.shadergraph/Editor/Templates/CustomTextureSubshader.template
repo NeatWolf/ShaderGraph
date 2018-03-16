@@ -1,0 +1,20 @@
+Pass
+{
+    Lighting Off
+    Blend One Zero
+
+	CGPROGRAM
+	#include "UnityCustomRenderTexture.cginc"
+	#pragma vertex CustomRenderTextureVertexShader
+	#pragma fragment frag
+	#pragma target 3.0
+
+	${ShaderPropertyUsages}
+	${ShaderFunctions}
+
+	float4 frag(v2f_customrendertexture IN) : COLOR
+	{
+		${PixelShaderBody}
+	}
+	ENDCG
+}
