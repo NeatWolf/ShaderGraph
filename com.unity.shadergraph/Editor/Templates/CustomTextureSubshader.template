@@ -6,7 +6,8 @@ SubShader
 		Blend One Zero
 
 		CGPROGRAM
-		#include "UnityCustomRenderTexture.cginc"
+		#include "ShaderGraphLibrary/UnityCustomRenderTexture.hlsl"
+		#include "CoreRP/ShaderLibrary/Common.hlsl"
 		#pragma vertex CustomRenderTextureVertexShader
 		#pragma fragment frag
 		#pragma target 3.0
@@ -14,17 +15,32 @@ SubShader
 		float4 SRGBToLinear( float4 c ) { return c; }
 		float3 SRGBToLinear( float3 c ) { return c; }
 
-		// ${ShaderPropertyUsages}
+		struct SurfaceInputs
+		{
+			// update input values
+			float3 localTexcoord;
+			float3 globalTexcoord;
+			uint primitiveID;
+			float3 direction;
+		};
+
+		SurfaceInputs ConvertV2FToSurfaceInputs( v2f_customrendertexture IN )
+		{
+			SurfaceInputs o;
+			
+			o.localTexcoord = IN.localTexcoord;
+			o.globalTexcoord = IN.globalTexcoord;
+			o.primitiveID = IN.primitiveID;
+			o.direction = IN.direction;
+
+			return o;
+		}
 
     	${Graph}
 
-		// ${ShaderFunctions}
-
 		float4 frag(v2f_customrendertexture IN) : COLOR
 		{
-			SurfaceInputs surfaceInput;
-        	
-			${SurfaceInputs}
+			SurfaceInputs surfaceInput = ConvertV2FToSurfaceInputs(IN);
 
 			SurfaceDescription surf = PopulateSurfaceData(surfaceInput);
 

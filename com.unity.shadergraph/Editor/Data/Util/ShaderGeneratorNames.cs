@@ -14,5 +14,12 @@ namespace UnityEditor.ShaderGraph {
         {
             return UV[(int)channel];
         }
+
+        
+
+        public static string GetCustomTextureUpdateDataName(this CustomTextureUpdateDataChannel channel)
+        {
+            return channel.ToString();
+        }
     }
 }

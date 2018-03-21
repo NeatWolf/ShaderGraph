@@ -28,38 +28,14 @@ namespace UnityEditor.ShaderGraph
 
             var surfaceDescriptionFunction = new ShaderGenerator();
             var surfaceDescriptionStruct = new ShaderGenerator();
-            var surfaceInputs = new ShaderGenerator();
             var functionRegistry = new FunctionRegistry(builder);
 
             var shaderProperties = new PropertyCollector();
-
-            surfaceInputs.AddShaderChunk("struct SurfaceInputs{", false);
-            surfaceInputs.Indent();
 
             var activeNodeList = ListPool<INode>.Get();
             NodeUtils.DepthFirstCollectNodesFromNode(activeNodeList, masterNode, NodeUtils.IncludeSelf.Include);
 
             var requirements = ShaderGraphRequirements.FromNodes(activeNodeList);
-
-            ShaderGenerator.GenerateSpaceTranslationSurfaceInputs(requirements.requiresNormal, InterpolatorType.Normal, surfaceInputs);
-            ShaderGenerator.GenerateSpaceTranslationSurfaceInputs(requirements.requiresTangent, InterpolatorType.Tangent, surfaceInputs);
-            ShaderGenerator.GenerateSpaceTranslationSurfaceInputs(requirements.requiresBitangent, InterpolatorType.BiTangent, surfaceInputs);
-            ShaderGenerator.GenerateSpaceTranslationSurfaceInputs(requirements.requiresViewDir, InterpolatorType.ViewDirection, surfaceInputs);
-            ShaderGenerator.GenerateSpaceTranslationSurfaceInputs(requirements.requiresPosition, InterpolatorType.Position, surfaceInputs);
-
-            if (requirements.requiresVertexColor)
-                surfaceInputs.AddShaderChunk(string.Format("float4 {0};", ShaderGeneratorNames.VertexColor), false);
-
-            if (requirements.requiresScreenPosition)
-                surfaceInputs.AddShaderChunk(string.Format("float4 {0};", ShaderGeneratorNames.ScreenPosition), false);
-
-            foreach (var channel in requirements.requiresMeshUVs.Distinct())
-            {
-                surfaceInputs.AddShaderChunk(string.Format("half4 {0};", channel.GetUVName()), false);
-            }
-
-            surfaceInputs.Deindent();
-            surfaceInputs.AddShaderChunk("};", false);
 
             var slots = new List<MaterialSlot>();
             slots.Add(masterNode.FindSlot<MaterialSlot>(0));
@@ -78,7 +54,6 @@ namespace UnityEditor.ShaderGraph
 
             var graph = new ShaderGenerator();
             graph.AddShaderChunk(shaderProperties.GetPropertiesDeclaration(2), false);
-            graph.AddShaderChunk(surfaceInputs.GetShaderString(2), false);
             graph.AddShaderChunk(builder.ToString(), false);
             graph.AddShaderChunk(surfaceDescriptionStruct.GetShaderString(2), false);
             graph.AddShaderChunk(surfaceDescriptionFunction.GetShaderString(2), false);
@@ -117,8 +92,6 @@ namespace UnityEditor.ShaderGraph
 
             
             subShaderOutput = subShaderOutput.Replace("${Graph}", graph.GetShaderString(3));
-
-            subShaderOutput = subShaderOutput.Replace("${SurfaceInputs}", localSurfaceInputs.GetShaderString(3));
 
             subShaderOutput = subShaderOutput.Replace("${SurfaceOutputRemap}", surfaceOutputRemap.GetShaderString(3));
 
